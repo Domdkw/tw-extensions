@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -12,18 +14,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Check commit message
         id: check
         run: |
-          if [[ "${{ github.event.head_commit.message }}" == ~!R* ]]; then
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ "$COMMIT_MSG" == ~!R* ]]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
           else
             echo "should_build=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Checkout
-        if: steps.check.outputs.should_build == 'true'
-        uses: actions/checkout@v4
 
       - name: Setup Node.js
         if: steps.check.outputs.should_build == 'true'
