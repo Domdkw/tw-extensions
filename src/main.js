@@ -52,10 +52,10 @@ Scratch.translate.setup({
                 color2: '#D2B48C',
                 color3: '#FFF8DC',
                 blocks: [
-                    {opcode:'ua',blockType:Scratch.BlockType.REPORTER,text:'url encode [t]',arguments:{t:{type:Scratch.ArgumentType.STRING}}},
-                    {opcode:'ub',blockType:Scratch.BlockType.REPORTER,text:'url decode [t]',arguments:{t:{type:Scratch.ArgumentType.STRING}}                    },
-                    {opcode:'uc',blockType:Scratch.BlockType.REPORTER,text:'url encode component [t]',arguments:{t:{type:Scratch.ArgumentType.STRING}}},
-                    {opcode:'ud',blockType:Scratch.BlockType.REPORTER,text:'url decode component [t]',arguments:{t:{type: Scratch.ArgumentType.STRING}}},
+                    {opcode:'urlencode',blockType:Scratch.BlockType.REPORTER,text:'url encode [t]',arguments:{t:{type:Scratch.ArgumentType.STRING}}},
+                    {opcode:'urldecode',blockType:Scratch.BlockType.REPORTER,text:'url decode [t]',arguments:{t:{type:Scratch.ArgumentType.STRING}}                    },
+                    {opcode:'urlencodeComponent',blockType:Scratch.BlockType.REPORTER,text:'url encode component [t]',arguments:{t:{type:Scratch.ArgumentType.STRING}}},
+                    {opcode:'urldecodeComponent',blockType:Scratch.BlockType.REPORTER,text:'url decode component [t]',arguments:{t:{type: Scratch.ArgumentType.STRING}}},
                     "---",
                     {
                         opcode: 'toSHA1',
@@ -124,15 +124,12 @@ Scratch.translate.setup({
                         arguments: {
                             IV: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                             KEY: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                             TEXT: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: 'hello scratch',
                             },
                         }
                     },
@@ -143,15 +140,12 @@ Scratch.translate.setup({
                         arguments: {
                             KEY: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
-                            },
+                           },
                             IV: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                             TEXT: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: 'hello scratch',
                             },
                         }
                     },
@@ -162,15 +156,12 @@ Scratch.translate.setup({
                         arguments: {
                             IV: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                             KEY: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                             TEXT: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                         }
                     },
@@ -181,15 +172,12 @@ Scratch.translate.setup({
                         arguments: {
                             IV: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                             KEY: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                             TEXT: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: '',
                             },
                         }
                     },
@@ -197,10 +185,10 @@ Scratch.translate.setup({
             }
         }
 
-        ua({t}){try{return encodeURI(t.toString());}catch(e){return'';}}
-        ub({t}){try{return decodeURI(t.toString());}catch(e){return'';}}
-        uc({t}){try{return encodeURIComponent(t.toString());}catch(e){return'';}}
-        ud({t}){try{return decodeURIComponent(t.toString());}catch(e){return'';}}
+        urlencode({t}){try{return encodeURI(t.toString());}catch(e){return'';}}
+        urldecode({t}){try{return decodeURI(t.toString());}catch(e){return'';}}
+        urlencodeComponent({t}){try{return encodeURIComponent(t.toString());}catch(e){return'';}}
+        urldecodeComponent({t}){try{return decodeURIComponent(t.toString());}catch(e){return'';}}
     
         async toSHA(text,algorithm) {
             try {
@@ -212,15 +200,16 @@ Scratch.translate.setup({
         async toSHA256({t}){return this.toSHA(t,'SHA-256');}
         async toSHA512({t}){return this.toSHA(t,'SHA-512');}
 
-        generateGCM_IV({len},v='currentGCM_IV') {
+        generateIV(len, propName) {
             try {
                 const iv = crypto.getRandomValues(new Uint8Array(len));
-                this[v] = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
-            }catch (e) {this[v] = '';}
+                this[propName] = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
+            }catch (e) {this[propName] = '';}
         }
-        generateCBC_IV(){return this.generateGCM_IV({len:16},'currentCBC_IV');}
-        getGCM_IV(){return this.currentGCM_IV;}
-        getCBC_IV(){return this.currentCBC_IV;}
+        generateGCM_IV({ len }) { this.generateIV(len,'currentGCM_IV'); }
+        generateCBC_IV() { this.generateIV(16,'currentCBC_IV'); }
+        getGCM_IV() {return this.currentGCM_IV;}
+        getCBC_IV() {return this.currentCBC_IV;}
 
         hexToUint8Array(hex) {
             const arr = new Uint8Array(hex.length / 2);
