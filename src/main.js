@@ -60,9 +60,9 @@ Scratch.translate.setup({
                     {
                         opcode: 'toSHA1',
                         blockType: Scratch.BlockType.REPORTER,
-                        text: 'SHA1 [text]',
+                        text: 'SHA1 [t]',
                         arguments: {
-                            text: {
+                            t: {
                                 type: Scratch.ArgumentType.STRING,
                                 defaultValue: 'hello scratch',
                             }
@@ -71,9 +71,9 @@ Scratch.translate.setup({
                     {
                         opcode: 'toSHA256',
                         blockType: Scratch.BlockType.REPORTER,
-                        text: 'SHA256 [text]',
+                        text: 'SHA256 [t]',
                         arguments: {
-                            text: {
+                            t: {
                                 type: Scratch.ArgumentType.STRING,
                                 defaultValue: 'hello scratch',
                             }
@@ -82,9 +82,9 @@ Scratch.translate.setup({
                     {
                         opcode: 'toSHA512',
                         blockType: Scratch.BlockType.REPORTER,
-                        text: 'SHA512 [text]',
+                        text: 'SHA512 [t]',
                         arguments: {
-                            text: {
+                            t: {
                                 type: Scratch.ArgumentType.STRING,
                                 defaultValue: 'hello scratch',
                             }
@@ -202,30 +202,15 @@ Scratch.translate.setup({
         uc({t}){try{return encodeURIComponent(t.toString());}catch(e){return'';}}
         ud({t}){try{return decodeURIComponent(t.toString());}catch(e){return'';}}
     
-        async toSHA1({ text }) {
+        async toSHA(text,algorithm) {
             try {
-                const hash = await crypto.subtle.digest('SHA-1', this.textEncoder.encode(text.toString()));
+                const hash = await crypto.subtle.digest(algorithm, this.textEncoder.encode(text.toString()));
                 return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-            } catch (e) {
-                return '';
-            }
+            } catch (e) {return '';}
         }
-        async toSHA256({ text }) {
-            try {
-                const hash = await crypto.subtle.digest('SHA-256', this.textEncoder.encode(text.toString()));
-                return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-            } catch (e) {
-                return '';
-            }
-        }
-        async toSHA512({ text }) {
-            try {
-                const hash = await crypto.subtle.digest('SHA-512', this.textEncoder.encode(text.toString()));
-                return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-            } catch (e) {
-                return '';
-            }
-        }
+        async toSHA1({t}){return this.toSHA(t,'SHA-1');}
+        async toSHA256({t}){return this.toSHA(t,'SHA-256');}
+        async toSHA512({t}){return this.toSHA(t,'SHA-512');}
 
         // 生成新的 AES-GCM 随机 IV 并存储
         generateGCM_IV({ len }) {
