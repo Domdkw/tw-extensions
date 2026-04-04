@@ -212,39 +212,19 @@ Scratch.translate.setup({
         async toSHA256({t}){return this.toSHA(t,'SHA-256');}
         async toSHA512({t}){return this.toSHA(t,'SHA-512');}
 
-        // 生成新的 AES-GCM 随机 IV 并存储
-        generateGCM_IV({ len }) {
+        generateGCM_IV({len},v='currentGCM_IV') {
             try {
                 const iv = crypto.getRandomValues(new Uint8Array(len));
-                this.currentGCM_IV = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
-            } catch (e) {
-                this.currentGCM_IV = '';
-            }
+                this[v] = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
+            }catch (e) {this[v] = '';}
         }
-        // 获取当前存储的 AES-GCM IV
-        getGCM_IV() {return this.currentGCM_IV;}
-        // 生成新的 AES-CBC 随机 IV (16字节) 并存储
-        generateCBC_IV() {
-            try {
-                const iv = crypto.getRandomValues(new Uint8Array(16));
-                this.currentCBC_IV = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
-            } catch (e) {
-                this.currentCBC_IV = '';
-            }
-        }
-        //获取当前存储的 AES-CBC IV
-        getCBC_IV() {return this.currentCBC_IV;}
+        generateCBC_IV(){return this.generateGCM_IV({len:16},'currentCBC_IV');}
+        getGCM_IV(){return this.currentGCM_IV;}
+        getCBC_IV(){return this.currentCBC_IV;}
 
-        /**
-         * 将十六进制字符串转换为 Uint8Array
-         * @param {string} hex - 十六进制字符串
-         * @returns {Uint8Array}
-         */
         hexToUint8Array(hex) {
             const arr = new Uint8Array(hex.length / 2);
-            for (let i = 0; i < hex.length; i += 2) {
-                arr[i / 2] = parseInt(hex.substr(i, 2), 16);
-            }
+            for (let i = 0; i < hex.length; i += 2) {arr[i / 2] = parseInt(hex.substr(i, 2), 16);}
             return arr;
         }
 
