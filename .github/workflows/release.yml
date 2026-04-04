@@ -21,11 +21,12 @@ jobs:
         id: check
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
-          if [[ "$COMMIT_MSG" == ~!R* ]]; then
+          if [[ "$COMMIT_MSG" == *"!R"* ]]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
           else
             echo "should_build=false" >> $GITHUB_OUTPUT
           fi
+        shell: bash
 
       - name: Setup Node.js
         if: steps.check.outputs.should_build == 'true'
