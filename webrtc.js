@@ -235,7 +235,7 @@
                 };
                 
                 dc.onmessage = (event) => {
-                    console.log(`Message sent on channel '${dcSSID}':`, event.data);
+                    console.log(`Message received on channel '${dcSSID}':`, event.data);
                     this.dataChannelMessages[dcSSID.toString()] = event.data;
                     Scratch.vm.runtime.startHats('WebRTC_onDataChannelMessage');
                 };
