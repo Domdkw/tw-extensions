@@ -235,26 +235,9 @@
                 };
                 
                 dc.onmessage = (event) => {
-                    console.log(`Message received on channel '${dcSSID}':`, event.data);
+                    console.log(`Message sent on channel '${dcSSID}':`, event.data);
                     this.dataChannelMessages[dcSSID.toString()] = event.data;
                     Scratch.vm.runtime.startHats('WebRTC_onDataChannelMessage');
-                };
-                
-                pc.ondatachannel = (event) => {
-                    const receivedDC = event.channel;
-                    const receivedDCSSID = receivedDC.label;
-                    this.dataChannel[receivedDCSSID] = receivedDC;
-                    
-                    receivedDC.onopen = () => {
-                        console.log(`Data channel '${receivedDCSSID}' opened (remote)`);
-                        Scratch.vm.runtime.startHats('WebRTC_onDataChannelOpen');
-                    };
-                    
-                    receivedDC.onmessage = (msgEvent) => {
-                        console.log(`Message received on channel '${receivedDCSSID}' (remote):`, msgEvent.data);
-                        this.dataChannelMessages[receivedDCSSID] = msgEvent.data;
-                        Scratch.vm.runtime.startHats('WebRTC_onDataChannelMessage');
-                    };
                 };
                 
                 console.log(`Data channel created with SSID '${dcSSID}' , ID '${id}'`);
@@ -273,6 +256,7 @@
                 }
                 this.offer = await pc.createOffer();
                 await pc.setLocalDescription(this.offer);
+                console.log('offer created:', this.offer);
                 
                 pc.onicecandidate = (event) => {
                     if (event.candidate) {
@@ -298,6 +282,7 @@
                 }
                 this.answer = await pc.createAnswer();
                 await pc.setLocalDescription(this.answer);
+                console.log('answer created:', this.answer);
                 
                 pc.onicecandidate = (event) => {
                     if (event.candidate) {
@@ -321,6 +306,24 @@
                     console.warn(`PeerConnection with ID '${id}' not found. Please create connection first.`);
                     return;
                 }
+                
+                pc.ondatachannel = (event) => {
+                    const receivedDC = event.channel;
+                    const receivedDCSSID = receivedDC.label;
+                    this.dataChannel[receivedDCSSID] = receivedDC;
+                    
+                    receivedDC.onopen = () => {
+                        console.log(`Data channel '${receivedDCSSID}' opened (remote)`);
+                        Scratch.vm.runtime.startHats('WebRTC_onDataChannelOpen');
+                    };
+                    
+                    receivedDC.onmessage = (msgEvent) => {
+                        console.log(`Message received on channel '${receivedDCSSID}' (remote):`, msgEvent.data);
+                        this.dataChannelMessages[receivedDCSSID] = msgEvent.data;
+                        Scratch.vm.runtime.startHats('WebRTC_onDataChannelMessage');
+                    };
+                };
+                
                 await pc.setRemoteDescription(offer);
             }
             catch(err){
